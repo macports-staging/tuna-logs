@@ -1,0 +1,24 @@
+name: Generate filtered access log
+
+on:
+  push:
+  schedule:
+    # Compressed log for day T (*-T+1.gz) is generated on day T+2 approx. 03:35 +0800 (or day T+1 19:35 UTC)
+    # [10/Sep/2019:03:36:39 +0800] "HEAD /logs/neomirrors/mirrors.log-20190909.gz HTTP/2.0" 200
+    # [10/Sep/2019:03:36:39 +0800] "HEAD /logs/nanomirrors/mirrors.log-20190909.gz HTTP/2.0" 200
+    - cron:  '2 0 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-go@v1
+      with:
+        go-version: '1.13'
+    - name: Install Dependencies
+      run: sudo DEBIAN_FRONTEND=noninteractive apt-get install -y pv zstd
+    - name: Build
+      run: . generate.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
