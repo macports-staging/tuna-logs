@@ -13,15 +13,16 @@ if [ -f "tuna-logs/data/$year/$month/$dest" ]; then
     exit 0
 fi
 
-for server in neo nano; do
+# nanomirrors removed since 2020-08-07
+for server in neo; do
     tuna_url="https://mirrors.tuna.tsinghua.edu.cn/logs/${server}mirrors/mirrors.log-$log_date.gz"
     echo "Downloading $tuna_url..."
     wget --progress=dot:giga -O "$server.mirrors.log-$log_date.gz" "$tuna_url"
 done
 
-gzip -dc {neo,nano}".mirrors.log-$log_date.gz" | pv | go run ./cmd/tuna2json | zstd - -o "$dest"
-sha256sum --tag {neo,nano}".mirrors.log-$log_date.gz" >"checksum-$date.raw.sha256"
-rm {neo,nano}".mirrors.log-$log_date.gz"
+gzip -dc neo".mirrors.log-$log_date.gz" | pv | go run ./cmd/tuna2json | zstd - -o "$dest"
+sha256sum --tag neo".mirrors.log-$log_date.gz" >"checksum-$date.raw.sha256"
+rm neo".mirrors.log-$log_date.gz"
 
 if [ -s "$dest" ]; then
     mkdir -p "tuna-logs/data/$year/$month"
